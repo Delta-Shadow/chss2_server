@@ -25,7 +25,7 @@ interface Move {
 
 interface ChssEngineState {
 	pieces: Pieces
-	fen: string
+	// ascii: string // used for debugging
 }
 
 class ChssEngine {
@@ -67,7 +67,11 @@ class ChssEngine {
 		})
 
 		this.#pieces.forEach(piece => {
-			const from = coordinatesToSquare(piece.x!, piece.y!)
+			if (!piece.x || !piece.y) {
+				piece.moves = undefined
+				return
+			}
+			const from = coordinatesToSquare(piece.x, piece.y)
 			piece.moves = moves[from]
 		})
 	}
@@ -88,10 +92,8 @@ class ChssEngine {
 		if (moved_piece_index == -1)
 			throw new Error('Move played from a square that contains no Piece')
 
-		// Update the piece that was moved
+		// Find target square
 		const to = squareToCoordinates(description.to())
-		this.#pieces[moved_piece_index].x = to.file
-		this.#pieces[moved_piece_index].y = to.rank
 
 		// If a promotion occurred
 		if (description.isPromotion()) {
@@ -145,6 +147,10 @@ class ChssEngine {
 			this.#pieces[rook_index].y = rook_to.rank
 		}
 
+		// Update the piece that was moved
+		this.#pieces[moved_piece_index].x = to.file
+		this.#pieces[moved_piece_index].y = to.rank
+
 		// Update all moves
 		this.#refresh_moves()
 		return true
@@ -152,8 +158,8 @@ class ChssEngine {
 
 	get_state(): ChssEngineState {
 		return {
-			pieces: this.#pieces,
-			fen: this.#position.fen()
+			pieces: this.#pieces
+			// ascii: this.#position.ascii()
 		}
 	}
 }
