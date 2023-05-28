@@ -14,7 +14,7 @@ interface Piece {
 	y: number
 	type: PieceType
 	color: PieceColor
-	moves: Array<Move>
+	moves?: Array<Move>
 }
 
 interface Move {
@@ -45,8 +45,7 @@ class ChssEngine {
 				x: coords.file,
 				y: coords.rank,
 				type: square_contents[1] as PieceType,
-				color: square_contents[0] as PieceColor,
-				moves: []
+				color: square_contents[0] as PieceColor
 			})
 		})
 	}
@@ -68,7 +67,7 @@ class ChssEngine {
 
 		this.#pieces.forEach((piece) => {
 			const from = coordinatesToSquare(piece.x, piece.y)
-			piece.moves = moves[from] ?? []
+			piece.moves = moves[from]
 		})
 	}
 
