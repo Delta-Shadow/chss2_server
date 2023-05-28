@@ -10,8 +10,8 @@ import {
 type Pieces = Array<Piece>
 
 interface Piece {
-	x: number
-	y: number
+	x?: number
+	y?: number
 	type: PieceType
 	color: PieceColor
 	moves?: Array<Move>
@@ -25,6 +25,7 @@ interface Move {
 
 interface ChssEngineState {
 	pieces: Pieces
+	fen: string
 }
 
 class ChssEngine {
@@ -37,7 +38,7 @@ class ChssEngine {
 	}
 
 	#init_pieces() {
-		forEachSquare((square) => {
+		forEachSquare(square => {
 			const square_contents = this.#position.square(square)
 			const coords = squareToCoordinates(square)
 			if (square_contents == '-') return
@@ -54,7 +55,7 @@ class ChssEngine {
 		const move_descriptors = this.#position.moves()
 		let moves: Record<string, Array<Move>> = {}
 
-		move_descriptors.forEach((desciptor) => {
+		move_descriptors.forEach(desciptor => {
 			const from = desciptor.from()
 			if (!(from in moves)) moves[from] = []
 			const to = squareToCoordinates(desciptor.to())
@@ -65,21 +66,94 @@ class ChssEngine {
 			})
 		})
 
-		this.#pieces.forEach((piece) => {
-			const from = coordinatesToSquare(piece.x, piece.y)
+		this.#pieces.forEach(piece => {
+			const from = coordinatesToSquare(piece.x!, piece.y!)
 			piece.moves = moves[from]
 		})
 	}
 
 	play(move: string) {
+		// Extract description of the move
+		const description = this.#position.notation(move)
+
+		// Play out the move
 		const played = this.#position.play(move)
-		if (played) {
+		if (!played) return false
+
+		// Find the piece that was moved
+		const from = squareToCoordinates(description.from())
+		const moved_piece_index = this.#pieces.findIndex(
+			piece => piece.x == from.file && piece.y == from.rank
+		)
+		if (moved_piece_index == -1)
+			throw new Error('Move played from a square that contains no Piece')
+
+		// Update the piece that was moved
+		const to = squareToCoordinates(description.to())
+		this.#pieces[moved_piece_index].x = to.file
+		this.#pieces[moved_piece_index].y = to.rank
+
+		// If a promotion occurred
+		if (description.isPromotion()) {
+			// Update the piece
+			const promoted_piece_type = description.promotion()
+			this.#pieces[moved_piece_index].type = promoted_piece_type
 		}
+
+		// If a normal capture occured
+		if (description.isCapture() && !description.isEnPassant()) {
+			// Find the piece that was captured
+			const captured_piece_index = this.#pieces.findIndex(
+				piece => piece.x == to.file && piece.y == to.rank
+			)
+			if (captured_piece_index == -1)
+				throw new Error('Move captured a square that contains no Piece')
+
+			// Update the piece that was captured
+			this.#pieces[captured_piece_index].x = undefined
+			this.#pieces[captured_piece_index].y = undefined
+		}
+
+		// If an enpassant capture occured
+		if (description.isEnPassant()) {
+			// Find the piece that was captured
+			const enpassant_square = squareToCoordinates(description.enPassantSquare())
+			const captured_piece_index = this.#pieces.findIndex(
+				piece => piece.x == enpassant_square.file && piece.y == enpassant_square.rank
+			)
+			if (captured_piece_index == -1)
+				throw new Error('EnPassant captured a square that contains no Piece')
+
+			// Update the piece that was captured
+			this.#pieces[captured_piece_index].x = undefined
+			this.#pieces[captured_piece_index].y = undefined
+		}
+
+		// If castling occured
+		if (description.isCastling()) {
+			// Find the rook that castled
+			const rook_from = squareToCoordinates(description.rookFrom())
+			const rook_index = this.#pieces.findIndex(
+				piece => piece.x == rook_from.file && piece.y == rook_from.rank
+			)
+			if (rook_index == -1)
+				throw new Error('Castling moved a rook from a square that contains no Piece')
+
+			// Update the rook
+			const rook_to = squareToCoordinates(description.rookTo())
+			this.#pieces[rook_index].x = rook_to.file
+			this.#pieces[rook_index].y = rook_to.rank
+		}
+
+		// Update all moves
+		this.#refresh_moves()
+		return true
 	}
 
 	get_state(): ChssEngineState {
 		return {
-			pieces: this.#pieces
+			pieces: this.#pieces,
+			fen: this.#position.fen()
 		}
 	}
 }
