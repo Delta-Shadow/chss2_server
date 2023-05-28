@@ -1,7 +1,24 @@
 import dotenv from 'dotenv'
 dotenv.config()
-
 import logger from './lib/logger'
+
+import http from 'http'
+import app from './app'
+
+const server = http.createServer()
+const port = process.env.PORT || 80
+
+app.attach(server)
+server.listen(port)
+
+logger.info('Server started', {
+	server_info: {
+		port
+	}
+})
+
+// Code to test the Chss Engine
+/*
 import ChssEngine from './chss_engine'
 
 const engine = new ChssEngine()
@@ -23,3 +40,4 @@ for (let i = 0; i < 14; i++) {
 }
 
 logger.debug('Game Over')
+*/
