@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid'
+import logger from './logger'
 
 interface PlayerData {
 	pid: string
@@ -11,10 +12,18 @@ type UpdatablePlayerDataFields = Omit<PlayerData, 'pid'>
 class PlayerManager {
 	#players: Record<string, PlayerData> = {}
 
+	exists(sid: string) {
+		return sid in this.#players
+	}
+
 	add() {
 		const sid = uuid()
 		const pid = uuid()
 		this.#players[sid] = { pid }
+		logger.debug('New player added', {
+			players: this.#players
+		})
+		return sid
 	}
 
 	update(sid: string, fields: UpdatablePlayerDataFields) {

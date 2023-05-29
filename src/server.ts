@@ -19,13 +19,24 @@ class Server extends SocketServer {
 			serveClient: false
 		})
 
-		// Assign all event handlers
-		this.on('connection', socket => {
-			logger.debug('received connection: ', {
-				id: socket.id,
-				handshake: socket.handshake.auth
-			})
+		// Session management
+		this.use((socket, next) => {
+			// Existing sid from the auth field
+			let sid = socket.handshake.auth['sid']
+			// If the sid is absent
+			// Or no player with that sid exists
+			// Create a new player with a new sid
+			if (!sid || !app.players.exists(sid)) sid = app.players.add()
+			// Store that sid inside the socket to be used later
+			socket.data.sid = sid
+			next()
+		})
 
+		this.on('connection', socket => {
+			// Upon connection emit the session id to the client
+			socket.emit('session', { sid: socket.data.sid })
+
+			// Assign all event handlers
 			new JoinEventHandler(this, socket)
 		})
 	}
