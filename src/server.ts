@@ -33,8 +33,8 @@ class Server extends SocketServer {
 		})
 
 		this.on('connection', socket => {
-			// Upon connection emit the session id to the client
-			socket.emit('session', { sid: socket.data.sid })
+			// Upon connection, emit the sid and pid to the client
+			socket.emit('session', { sid: socket.data.sid, pid: socket.data.pid })
 
 			// Assign all event handlers
 			new JoinEventHandler(this, socket)
