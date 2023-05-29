@@ -3,12 +3,13 @@ dotenv.config()
 import logger from './lib/logger'
 
 import http from 'http'
-import app from './app'
+import App from './app'
 
 const server = http.createServer()
 const port = process.env.PORT || 80
 
-app.attach(server)
+const app = new App()
+app.io.attach(server)
 server.listen(port)
 
 logger.info('Server started', {

@@ -5,26 +5,36 @@ import JoinEventHandler from './event_handlers/join'
 
 // Lib
 import logger from './lib/logger'
+import Manager from './lib/manager'
 
-// CORS config
-let cors = {
-	origin: process.env.CLIENT_ORIGIN ?? '*'
+class App {
+	io: Server
+	manager: Manager
+
+	constructor() {
+		// Creating the manager
+		this.manager = new Manager()
+
+		// Creating the Socket IO Server
+		this.io = new Server({
+			// CORS config
+			cors: {
+				origin: process.env.CLIENT_ORIGIN ?? '*'
+			},
+			// Do no serve the client library
+			serveClient: false
+		})
+
+		// Assign all event handlers
+		this.io.on('connection', socket => {
+			logger.debug('received connection: ', {
+				id: socket.id,
+				handshake: socket.handshake.auth
+			})
+
+			new JoinEventHandler(this.io, socket)
+		})
+	}
 }
 
-// Creating the Socket IO Server
-const io = new Server({
-	cors,
-	serveClient: false
-})
-
-// Assign all event handlers
-io.on('connection', socket => {
-	logger.debug('received connection: ', {
-		id: socket.id,
-		handshake: socket.handshake.auth
-	})
-
-	new JoinEventHandler(io, socket)
-})
-
-export default io
+export default App
