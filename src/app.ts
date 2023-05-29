@@ -1,7 +1,7 @@
 import { Server } from 'socket.io'
 
 // Events
-import JoinEventHandler from './events/join'
+import JoinEventHandler from './event_handlers/join'
 
 // Lib
 import logger from './lib/logger'
