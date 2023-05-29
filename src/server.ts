@@ -10,7 +10,7 @@ import logger from './lib/logger'
 
 class Server extends SocketServer {
 	constructor(http_server: HttpServer, app: App) {
-		super({
+		super(http_server, {
 			// CORS config
 			cors: {
 				origin: process.env.CLIENT_ORIGIN ?? '*'
