@@ -1,8 +1,9 @@
 import { type Server, type Socket } from 'socket.io'
 
+import EventHandler from './event_handler'
+
 // Lib
 import logger from '../lib/logger'
-import EventHandler from '../lib/event_handler'
 
 interface EventData {}
 
