@@ -37,7 +37,7 @@ class Server extends SocketServer {
 			socket.emit('session', { sid: socket.data.sid, pid: socket.data.pid })
 
 			// Assign all event handlers
-			new JoinEventHandler(this, socket)
+			new JoinEventHandler(this, socket, app)
 		})
 	}
 }
