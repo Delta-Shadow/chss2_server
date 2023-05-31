@@ -1,4 +1,5 @@
 import { type Server, type Socket } from 'socket.io'
+import logger from '../lib/logger'
 
 interface FieldOptions {
 	required?: boolean
@@ -12,7 +13,7 @@ interface FieldOptions {
 
 interface CallbackData {
 	err: string
-	data: any
+	data?: any
 }
 
 type Callback = (data: CallbackData) => void
@@ -28,6 +29,15 @@ abstract class EventHandler<EventData> {
 		this.io = io
 		this.socket = socket
 		socket.on(this.event_name, this.#process.bind(this))
+	}
+
+	#process(data: any, callback?: Callback) {
+		const _callback = (callback_data: CallbackData) => {
+			if (callback) callback(callback_data)
+		}
+		const _valid = this.#valid(data, _callback)
+		if (!_valid) return
+		this.handle(data, _callback)
 	}
 
 	#valid(data: any, callback: Callback) {
@@ -49,14 +59,8 @@ abstract class EventHandler<EventData> {
 		}
 
 		const failed = Object.values(failures).some(failure => failure.length > 0)
-		if (failed && callback) callback({ err: 'Validation failed', data: failures! })
+		callback({ err: 'Validation failed', data: failures! })
 		return failed
-	}
-
-	#process(data: any, callback: Callback) {
-		const _valid = this.#valid(data, callback)
-		if (!_valid) return
-		this.handle(data, callback)
 	}
 
 	handle(data: EventData, callback: Callback) {}
