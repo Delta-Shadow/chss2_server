@@ -22,13 +22,20 @@ class Server extends SocketServer {
 		// Session management
 		this.use((socket, next) => {
 			// Existing sid from the auth field
-			let sid = socket.handshake.auth['sid']
+			let sid: string = socket.handshake.auth['sid']
 			// If the sid is absent
 			// Or no player with that sid exists
-			// Create a new player with a new sid
-			if (!sid || !app.players.exists(sid)) sid = app.players.add()
-			// Store that sid inside the socket to be used later
-			socket.data.sid = sid
+			if (!sid || !app.players.exists(sid)) {
+				// Create a new player with a new sid
+				let { sid, player } = app.players.create()
+				// Store it all inside the socket to be used later
+				socket.data.sid = sid
+				socket.data.player = player
+			} else {
+				// Sid and player both exist
+				// Get existing player data and store it inside socket
+				socket.data.player = app.players.get(sid)
+			}
 			next()
 		})
 

@@ -13,11 +13,8 @@ interface EventData {
 }
 
 class JoinEventHandler extends EventHandler<EventData> {
-	app: App
-
 	constructor(io: Server, socket: Socket, app: App) {
-		super('join', io, socket)
-		this.app = app
+		super('join', io, socket, app)
 
 		this.event_data = {
 			room: {
@@ -41,10 +38,6 @@ class JoinEventHandler extends EventHandler<EventData> {
 
 		this.handle = (data, callback) => {}
 	}
-
-	// handle(data: EventData, callback: EventCallback) {
-	// 	logger.debug(`received ${this.event_name} event`)
-	// }
 }
 
 export default JoinEventHandler

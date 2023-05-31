@@ -7,7 +7,7 @@ interface PlayerData {
 	name?: string
 }
 
-type UpdatablePlayerDataFields = Omit<PlayerData, 'pid'>
+type UpdatablePlayerData = Omit<PlayerData, 'pid'>
 
 class PlayerManager {
 	#players: Record<string, PlayerData> = {}
@@ -16,20 +16,21 @@ class PlayerManager {
 		return sid in this.#players
 	}
 
-	add() {
+	get(sid: string) {
+		return this.#players[sid]
+	}
+
+	create() {
 		const sid = uuid()
 		const pid = uuid()
 		this.#players[sid] = { pid }
-		logger.debug('New player added', {
-			players: this.#players
-		})
-		return sid
+		return { sid, player: this.#players[sid] }
 	}
 
-	update(sid: string, fields: UpdatablePlayerDataFields) {
+	update(sid: string, data: UpdatablePlayerData) {
 		const player = this.#players[sid]
-		Object.entries(fields).forEach(entry => {
-			const [field, value] = entry as [keyof UpdatablePlayerDataFields, any]
+		Object.entries(data).forEach(datum => {
+			const [field, value] = datum as [keyof UpdatablePlayerData, any]
 			if (field in player) player[field] = value
 		})
 	}

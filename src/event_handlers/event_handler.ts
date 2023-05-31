@@ -1,5 +1,6 @@
 import { type Server, type Socket } from 'socket.io'
 import logger from '../lib/logger'
+import App from '../app'
 
 interface FieldOptions {
 	required?: boolean
@@ -21,13 +22,15 @@ type Callback = (data: CallbackData) => void
 abstract class EventHandler<EventData> {
 	io: Server
 	socket: Socket
+	app: App
 	event_name: string
 	event_data?: Record<keyof EventData, FieldOptions>
 
-	constructor(event_name: string, io: Server, socket: Socket) {
+	constructor(event_name: string, io: Server, socket: Socket, app: App) {
 		this.event_name = event_name
 		this.io = io
 		this.socket = socket
+		this.app = app
 		socket.on(this.event_name, this.#process.bind(this))
 	}
 
