@@ -30,7 +30,8 @@
 		"socket.io": "^4.6.1",
 		"uuid": "^9.0.0",
 		"validator": "^13.9.0",
-		"winston": "^3.8.2"
+		"winston": "^3.8.2",
+		"zod": "^3.21.4"
 	},
 	"lint-staged": {
 		"**/*": "prettier --write --ignore-unknown"

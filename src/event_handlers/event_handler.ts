@@ -1,30 +1,17 @@
 import { type Server, type Socket } from 'socket.io'
-import logger from '../lib/logger'
+import { z, type Schema, ZodError } from 'zod'
+
 import App from '../app'
+import Error, { ValidationError, InternalServerError } from '../lib/errors'
 
-interface FieldOptions {
-	required?: boolean
-	validation_rules?: [
-		{
-			test: (value: string) => boolean
-			fail_msg: string
-		}
-	]
-}
+type Callback = (err: Error) => void
 
-interface CallbackData {
-	err: string
-	data?: any
-}
-
-type Callback = (data: CallbackData) => void
-
-abstract class EventHandler<EventData> {
+abstract class EventHandler {
 	io: Server
 	socket: Socket
 	app: App
 	event_name: string
-	event_data?: Record<keyof EventData, FieldOptions>
+	schema: Schema = z.any()
 
 	constructor(event_name: string, io: Server, socket: Socket, app: App) {
 		this.event_name = event_name
@@ -34,39 +21,29 @@ abstract class EventHandler<EventData> {
 		socket.on(this.event_name, this.#process.bind(this))
 	}
 
-	#process(data: any, callback?: Callback) {
-		const _callback = (callback_data: CallbackData) => {
-			if (callback) callback(callback_data)
+	#process(_params: any, _callback?: Callback) {
+		const callback: Callback = err => {
+			if (_callback) _callback(err)
 		}
-		const _valid = this.#valid(data, _callback)
-		if (!_valid) return
-		this.handle(data, _callback)
-	}
 
-	#valid(data: any, callback: Callback) {
-		if (!this.event_data) return true
-
-		const fields = Object.keys(this.event_data)
-		const field_options = Object.values(this.event_data) as Array<FieldOptions>
-		let failures = Object.fromEntries(fields.map(field => [field, new Array()]))
-
-		for (let i = 0; i < fields.length; i++) {
-			const field = fields[i]
-			const options = field_options[i]
-			if (options.required && !(field in data)) failures[field].push('This field is required')
-			else if (field in data && options.validation_rules) {
-				options.validation_rules.forEach(rule => {
-					if (!rule.test(`${data[field]}`)) failures[field].push(rule.fail_msg)
-				})
+		try {
+			const params = this.schema.parse(_params)
+			this.handle(params)
+		} catch (e) {
+			if (e instanceof ZodError) {
+				const err_data = e.format()
+				const err = new ValidationError(err_data)
+				callback(err)
+			} else if (e instanceof Error) {
+				callback(e)
+			} else {
+				const err = new InternalServerError('Unknown error occurred on the server')
+				callback(err)
 			}
 		}
-
-		const failed = Object.values(failures).some(failure => failure.length > 0)
-		callback({ err: 'Validation failed', data: failures! })
-		return failed
 	}
 
-	handle(data: EventData, callback: Callback) {}
+	handle(data: any) {}
 }
 
 export default EventHandler

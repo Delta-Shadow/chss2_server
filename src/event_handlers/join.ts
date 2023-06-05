@@ -1,42 +1,27 @@
 import { type Server, type Socket } from 'socket.io'
-import isAlphanumeric from 'validator/lib/isAlphanumeric'
+import { z } from 'zod'
+// import isAlphanumeric from 'validator/lib/isAlphanumeric'
 
 import App from '../app'
 import EventHandler from './event_handler'
+import { OpFailed } from '../lib/errors'
 
 // Lib
-import logger from '../lib/logger'
+// import logger from '../lib/logger'
 
-interface EventData {
-	room: string
-	name: string
-}
-
-class JoinEventHandler extends EventHandler<EventData> {
+class JoinEventHandler extends EventHandler {
 	constructor(io: Server, socket: Socket, app: App) {
 		super('join', io, socket, app)
+	}
 
-		this.event_data = {
-			room: {
-				required: true,
-				validation_rules: [
-					{
-						test: isAlphanumeric,
-						fail_msg: 'Can only be alphanumeric'
-					}
-				]
-			},
-			name: {
-				validation_rules: [
-					{
-						test: isAlphanumeric,
-						fail_msg: 'Can only be alphanumeric'
-					}
-				]
-			}
-		}
+	schema = z.object({
+		name: z.string(),
+		room: z.number()
+	})
 
-		this.handle = (data, callback) => {}
+	handle(params: z.infer<typeof this.schema>) {
+		throw new OpFailed('You suck')
+		console.log(params.name)
 	}
 }
 
