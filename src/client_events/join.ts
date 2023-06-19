@@ -1,9 +1,16 @@
 import { type Server, type Socket } from 'socket.io'
+import App from '../app'
 import { z } from 'zod'
 
-import App from '../app'
-import ClientEvent from '../lib/client_event'
+// Lib
 import { OpFailed } from '../lib/errors'
+
+// Client Events
+import ClientEvent from '../lib/client_event'
+
+// Server Events
+import GameUpdate from '../server_events/game_update'
+import SocialUpdate from '../server_events/social_update'
 
 class JoinEvent extends ClientEvent {
 	constructor(io: Server, socket: Socket, app: App) {
@@ -33,12 +40,10 @@ class JoinEvent extends ClientEvent {
 		this.socket.join(params.room)
 
 		// Emit a game update packet to this socket
-		const game_state = this.app.rooms.get(params.room).game.get_state()
-		this.socket.emit('game_state', game_state)
+		new GameUpdate(this.io, this.socket, this.app, params.room).emit()
 
 		// Emit an update packet to all members of the room
-		const players = this.app.players.from(params.room)
-		this.io.in(params.room).emit('social_update', { players })
+		new SocialUpdate(this.io, this.socket, this.app, params.room).broadcast()
 	}
 }
 

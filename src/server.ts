@@ -8,6 +8,7 @@ import Disconnect from './client_events/disconnect'
 
 // Types
 import { PlayerData } from './lib/player_manager'
+import SessionUpdate from './server_events/session_update'
 
 interface SocketInfo {
 	sid: string
@@ -57,7 +58,7 @@ class Server extends SocketServer {
 
 		this.on('connection', socket => {
 			// Upon connection, emit the sid and pid to the client
-			socket.emit('session', { sid: socket.info.sid, pid: socket.info.player.pid })
+			new SessionUpdate(this, socket, app).emit()
 
 			// Assign all event handlers
 			new JoinEvent(this, socket, app)
