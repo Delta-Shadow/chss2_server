@@ -1,15 +1,11 @@
 import { type Server, type Socket } from 'socket.io'
 import { z } from 'zod'
-// import isAlphanumeric from 'validator/lib/isAlphanumeric'
 
 import App from '../app'
-import EventHandler from './event_handler'
+import ClientEvent from '../lib/client_event'
 import { OpFailed } from '../lib/errors'
 
-// Lib
-// import logger from '../lib/logger'
-
-class JoinEventHandler extends EventHandler {
+class JoinEvent extends ClientEvent {
 	constructor(io: Server, socket: Socket, app: App) {
 		super('join', io, socket, app)
 	}
@@ -25,4 +21,4 @@ class JoinEventHandler extends EventHandler {
 	}
 }
 
-export default JoinEventHandler
+export default JoinEvent

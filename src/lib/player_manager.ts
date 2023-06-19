@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid'
-import logger from './logger'
 
-interface PlayerData {
+export interface PlayerData {
 	pid: string
 	rid?: string
 	name?: string

@@ -3,7 +3,7 @@ import { Server as HttpServer } from 'http'
 import { Server as SocketServer } from 'socket.io'
 
 // Events
-import JoinEventHandler from './event_handlers/join'
+import JoinEvent from './client_events/join'
 
 // Lib
 import logger from './lib/logger'
@@ -42,10 +42,10 @@ class Server extends SocketServer {
 
 		this.on('connection', socket => {
 			// Upon connection, emit the sid and pid to the client
-			socket.emit('session', { sid: socket.data.sid, pid: socket.data.pid })
+			socket.emit('session', { sid: socket.data.sid, pid: socket.data.player.pid })
 
 			// Assign all event handlers
-			new JoinEventHandler(this, socket, app)
+			new JoinEvent(this, socket, app)
 		})
 	}
 }

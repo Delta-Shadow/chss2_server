@@ -2,7 +2,7 @@ import { type Server, type Socket } from 'socket.io'
 import { z, type Schema, ZodError } from 'zod'
 
 import App from '../app'
-import Error, { ValidationError, InternalServerError } from '../lib/errors'
+import Error, { ValidationError, InternalServerError } from './errors'
 
 type Callback = (err: Error) => void
 
