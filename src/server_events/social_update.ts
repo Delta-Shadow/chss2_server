@@ -9,8 +9,7 @@ class SocialUpdate extends ServerEvent {
 
 	get data() {
 		return {
-			players: this.app.players.from(this.rid!),
-			msgs: []
+			players: this.app.players.from(this.rid!)
 		}
 	}
 }

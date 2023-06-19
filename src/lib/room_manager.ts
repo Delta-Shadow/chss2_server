@@ -1,7 +1,13 @@
 import ChssEngine from '../chss_engine'
 
+interface Msg {
+	sender: string
+	content: string
+}
+
 export interface RoomData {
 	game: ChssEngine
+	msgs: Array<Msg>
 }
 
 // type UpdatableRoomData = Omit<RoomData, 'game'>
@@ -20,7 +26,8 @@ class RoomManager {
 
 	create(rid: string) {
 		this.#rooms[rid] = {
-			game: new ChssEngine()
+			game: new ChssEngine(),
+			msgs: []
 		}
 		return { rid }
 	}
@@ -35,6 +42,20 @@ class RoomManager {
 
 	delete(rid: string) {
 		if (this.exists(rid)) delete this.#rooms[rid]
+	}
+
+	add_msg(rid: string, sender: string, content: string) {
+		if (!this.exists(rid)) return
+		const msgs = this.#rooms[rid].msgs
+		msgs[0] = msgs[1]
+		msgs[1] = msgs[2]
+		msgs[2] = { sender, content }
+		this.#rooms[rid].msgs = msgs
+	}
+
+	get_msgs(rid: string) {
+		if (!this.exists(rid)) return
+		return this.#rooms[rid].msgs
 	}
 }
 
