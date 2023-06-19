@@ -4,6 +4,7 @@ import { Server as SocketServer, Socket } from 'socket.io'
 
 // Events
 import JoinEvent from './client_events/join'
+import Disconnect from './client_events/disconnect'
 
 // Types
 import { PlayerData } from './lib/player_manager'
@@ -60,6 +61,7 @@ class Server extends SocketServer {
 
 			// Assign all event handlers
 			new JoinEvent(this, socket, app)
+			new Disconnect(this, socket, app)
 		})
 	}
 }
