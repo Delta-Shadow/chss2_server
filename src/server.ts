@@ -1,6 +1,6 @@
 import App from './app'
 import { Server as HttpServer } from 'http'
-import { Server as SocketServer } from 'socket.io'
+import { Server as SocketServer, Socket } from 'socket.io'
 
 // Events
 import JoinEvent from './client_events/join'
@@ -19,6 +19,8 @@ declare module 'socket.io' {
 		info: SocketInfo
 	}
 }
+
+Socket.prototype.info = new Object() as SocketInfo
 
 class Server extends SocketServer {
 	constructor(http_server: HttpServer, app: App) {
@@ -54,7 +56,7 @@ class Server extends SocketServer {
 
 		this.on('connection', socket => {
 			// Upon connection, emit the sid and pid to the client
-			socket.emit('session', { sid: socket.data.sid, pid: socket.data.player.pid })
+			socket.emit('session', { sid: socket.info.sid, pid: socket.info.player.pid })
 
 			// Assign all event handlers
 			new JoinEvent(this, socket, app)
