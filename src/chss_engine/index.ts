@@ -156,7 +156,7 @@ class ChssEngine {
 		return true
 	}
 
-	get_state(): ChssEngineState {
+	state(): ChssEngineState {
 		return {
 			pieces: this.#pieces
 			// ascii: this.#position.ascii()
