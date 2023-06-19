@@ -32,6 +32,10 @@ class RoomManager {
 			if (field in room) room[field] = value
 		})
 	}
+
+	delete(rid: string) {
+		if (this.exists(rid)) delete this.#rooms[rid]
+	}
 }
 
 export default RoomManager
