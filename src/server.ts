@@ -34,6 +34,7 @@ class Server extends SocketServer {
 			} else {
 				// Sid and player both exist
 				// Get existing player data and store it inside socket
+				socket.data.sid = sid
 				socket.data.player = app.players.get(sid)
 			}
 			next()
