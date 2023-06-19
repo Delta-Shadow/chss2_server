@@ -5,8 +5,20 @@ import { Server as SocketServer } from 'socket.io'
 // Events
 import JoinEvent from './client_events/join'
 
-// Lib
-import logger from './lib/logger'
+// Types
+import { PlayerData } from './lib/player_manager'
+
+interface SocketInfo {
+	sid: string
+	player: PlayerData
+}
+
+// Declaring a new property 'info' on the socket object
+declare module 'socket.io' {
+	interface Socket {
+		info: SocketInfo
+	}
+}
 
 class Server extends SocketServer {
 	constructor(http_server: HttpServer, app: App) {
@@ -29,13 +41,13 @@ class Server extends SocketServer {
 				// Create a new player with a new sid
 				let { sid, player } = app.players.create()
 				// Store it all inside the socket to be used later
-				socket.data.sid = sid
-				socket.data.player = player
+				socket.info.sid = sid
+				socket.info.player = player
 			} else {
 				// Sid and player both exist
 				// Get existing player data and store it inside socket
-				socket.data.sid = sid
-				socket.data.player = app.players.get(sid)
+				socket.info.sid = sid
+				socket.info.player = app.players.get(sid)
 			}
 			next()
 		})
