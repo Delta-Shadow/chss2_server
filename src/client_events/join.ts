@@ -32,9 +32,13 @@ class JoinEvent extends ClientEvent {
 		// Put the socket belonging to this player into a room
 		this.socket.join(params.room)
 
-		// Emit an update packet to all members of the room
+		// Emit a game update packet to this socket
 		const game_state = this.app.rooms.get(params.room).game.get_state()
-		this.io.in(params.room).emit('game_state', game_state)
+		this.socket.emit('game_state', game_state)
+
+		// Emit an update packet to all members of the room
+		const players = this.app.players.from(params.room)
+		this.io.in(params.room).emit('social_update', { players })
 	}
 }
 
