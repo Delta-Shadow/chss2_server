@@ -4,6 +4,7 @@ export interface PlayerData {
 	pid: string
 	rid: string | null
 	name: string | null
+	role: 'white' | 'black' | 'spectator' | null
 }
 
 type UpdatablePlayerData = Omit<PlayerData, 'pid'>
@@ -30,11 +31,11 @@ class PlayerManager {
 	create() {
 		const sid = uuid()
 		const pid = uuid()
-		this.#players[sid] = { pid, rid: null, name: null }
+		this.#players[sid] = { pid, rid: null, name: null, role: null }
 		return { sid, player: this.#players[sid] }
 	}
 
-	update(sid: string, data: UpdatablePlayerData) {
+	update(sid: string, data: Partial<UpdatablePlayerData>) {
 		const player = this.#players[sid]
 		Object.entries(data).forEach(entry => {
 			const [field, value] = entry as [keyof UpdatablePlayerData, any]

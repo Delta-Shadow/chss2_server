@@ -31,9 +31,11 @@ class JoinEvent extends ClientEvent {
 		if (!this.app.rooms.exists(params.room)) this.app.rooms.create(params.room)
 
 		// Update the player's data
+		const count = this.app.players.count(params.room)
 		this.app.players.update(this.socket.info.sid, {
 			rid: params.room,
-			name: params.name
+			name: params.name,
+			role: count > 1 ? 'spectator' : count == 1 ? 'black' : 'white'
 		})
 
 		// Put the socket belonging to this player into a room
