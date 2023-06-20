@@ -6,7 +6,7 @@ import Error, { ValidationError, InternalServerError } from './errors'
 
 type Callback = (err: Error) => void
 
-abstract class EventHandler {
+abstract class ClientEvent {
 	io: Server
 	socket: Socket
 	app: App
@@ -46,4 +46,4 @@ abstract class EventHandler {
 	handle(data: any) {}
 }
 
-export default EventHandler
+export default ClientEvent

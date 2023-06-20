@@ -6,6 +6,7 @@ import { Server as SocketServer, Socket } from 'socket.io'
 import JoinEvent from './client_events/join'
 import Disconnect from './client_events/disconnect'
 import MsgEvent from './client_events/msg'
+import PlayEvent from './client_events/play'
 
 // Server Events
 import SessionUpdate from './server_events/session_update'
@@ -65,6 +66,7 @@ class Server extends SocketServer {
 
 			// Assign all event handlers
 			new JoinEvent(this, socket, app)
+			new PlayEvent(this, socket, app)
 			new MsgEvent(this, socket, app)
 			new Disconnect(this, socket, app)
 		})

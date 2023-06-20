@@ -4,7 +4,8 @@ import {
 	squareToCoordinates,
 	type Piece as PieceType,
 	type Color as PieceColor,
-	coordinatesToSquare
+	coordinatesToSquare,
+	MoveDescriptor
 } from 'kokopu'
 
 type Pieces = Array<Piece>
@@ -77,11 +78,15 @@ class ChssEngine {
 
 	play(move: string) {
 		// Extract description of the move
-		const description = this.#position.notation(move)
+		let description: MoveDescriptor
+		try {
+			description = this.#position.notation(move)
+		} catch {
+			return false
+		}
 
 		// Play out the move
-		const played = this.#position.play(move)
-		if (!played) return false
+		this.#position.play(move)
 
 		// Find the piece that was moved
 		const from = squareToCoordinates(description.from())
