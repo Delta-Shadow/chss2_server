@@ -23,18 +23,15 @@ interface Move {
 	notation: string
 }
 
-interface ChssEngineState {
-	pieces: Pieces
-	// ascii: string // used for debugging
-}
-
 class ChssEngine {
 	#position = new Position()
 	#pieces: Pieces = []
+	#game_over = false
 
 	constructor() {
 		this.#init_pieces()
 		this.#refresh_moves()
+		this.#update()
 	}
 
 	#init_pieces() {
@@ -75,6 +72,8 @@ class ChssEngine {
 			piece.moves = moves[from]
 		})
 	}
+
+	#update() {}
 
 	play(move: string) {
 		// Extract description of the move
@@ -153,12 +152,26 @@ class ChssEngine {
 
 		// Update all moves
 		this.#refresh_moves()
+		this.#update()
 		return true
 	}
 
-	state(): ChssEngineState {
+	state() {
+		const turn = this.#position.turn() == 'w' ? 'white' : 'black'
+		const checkmate = this.#position.isCheckmate()
+		const stalemate = this.#position.isStalemate()
+		const dead = this.#position.isDead()
+
+		const over = checkmate || stalemate || dead
+		const draw = over && !checkmate
+		const winner = over && !draw ? turn : null
+
 		return {
-			pieces: this.#pieces
+			pieces: this.#pieces,
+			turn,
+			over,
+			draw,
+			winner
 			// ascii: this.#position.ascii()
 		}
 	}

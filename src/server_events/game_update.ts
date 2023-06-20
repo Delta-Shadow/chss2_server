@@ -8,9 +8,7 @@ class GameUpdate extends ServerEvent {
 	}
 
 	get data() {
-		return {
-			state: this.app.rooms.get(this.rid!).game.state()
-		}
+		return this.app.rooms.get(this.rid!).game.state()
 	}
 }
 
