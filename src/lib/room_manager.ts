@@ -1,5 +1,7 @@
 import ChssEngine from '../chss_engine'
 
+const MSG_BUFFER = 3
+
 interface Msg {
 	sender: string
 	content: string
@@ -47,9 +49,12 @@ class RoomManager {
 	add_msg(rid: string, sender: string, content: string) {
 		if (!this.exists(rid)) return
 		const msgs = this.#rooms[rid].msgs
-		msgs[0] = msgs[1]
-		msgs[1] = msgs[2]
-		msgs[2] = { sender, content }
+		const msg = { sender, content }
+		if (msgs.length < MSG_BUFFER) msgs.push(msg)
+		else {
+			for (let i = 0; i < msgs.length - 1; i++) msgs[i + 1] = msgs[i]
+			msgs[0] = msg
+		}
 		this.#rooms[rid].msgs = msgs
 	}
 
