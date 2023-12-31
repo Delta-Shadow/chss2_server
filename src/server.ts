@@ -13,6 +13,7 @@ import SessionUpdate from './server_events/session_update'
 
 // Types
 import { PlayerData } from './lib/player_manager'
+import logger from './lib/logger'
 
 interface SocketInfo {
 	sid: string
@@ -62,6 +63,7 @@ class Server extends SocketServer {
 
 		this.on('connection', socket => {
 			// Upon connection, emit the sid and pid to the client
+			logger.debug('Received connection')
 			new SessionUpdate(this, socket, app).emit()
 
 			// Assign all event handlers
